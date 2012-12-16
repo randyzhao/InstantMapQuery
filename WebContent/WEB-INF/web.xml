@@ -9,4 +9,14 @@
     <welcome-file>default.htm</welcome-file>
     <welcome-file>default.jsp</welcome-file>
   </welcome-file-list>
+  <servlet>
+    <description>Used to handle the query sent from web page</description>
+    <display-name>QueryServlet</display-name>
+    <servlet-name>QueryServlet</servlet-name>
+    <servlet-class>randy.QueryServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>QueryServlet</servlet-name>
+    <url-pattern>/QueryServlet</url-pattern>
+  </servlet-mapping>
 </web-app>

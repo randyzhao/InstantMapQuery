@@ -24,6 +24,18 @@ body {
 	
 </script>
 <script type="text/javascript">
+	var center_marker = null;
+	function setCenterMarker(position, map) {
+		if (center_marker == null) {
+			center_marker = new google.maps.Marker({
+				position : position,
+				map : map,
+				title : "You Are Here"
+			});
+		} else {
+			center_marker.setPosition(position);
+		}
+	}
 	function initialize() {
 		var mapOptions = {
 			center : new google.maps.LatLng(-34.397, 150.644),
@@ -32,23 +44,73 @@ body {
 		};
 		var map = new google.maps.Map(document.getElementById("map_canvas"),
 				mapOptions);
+		google.maps.event.addListener(map, 'click', function(e) {
+			//alert('fuck');
+			setCenterMarker(e.latLng, map);
+			//alert(e.latLng.toString());
+			//alert(center_marker.getPosition().toString());
+		});
+
+	}
+	function makeHttpObject() {
+		try {
+			return new XMLHttpRequest();
+		} catch (error) {
+		}
+		try {
+			return new ActiveXObject("Msxml2.XMLHTTP");
+		} catch (error) {
+		}
+		try {
+			return new ActiveXObject("Microsoft.XMLHTTP");
+		} catch (error) {
+		}
+
+		return null;
+	}
+	function query(option) {
+		var httpObj = makeHttpObject();
+		if (httpObj == null) {
+			return null;
+		}
+		var post_data = JSON.stringify(option);
+		httpObj.open("POST", "QueryServlet", true);
+		httpObj.onreadystatechange = function() {//Call a function when the state changes.
+			if (httpObj.readyState == 4 && httpObj.status == 200) {
+				alert(httpObj.responseText);
+			}
+		};
+		httpObj.send(post_data);
+	}
+
+	function handleSearchContentChange(value) {
+		if (center_marker != null) {
+			query({
+				lat : center_marker.getPosition().lat(),
+				lng : center_marker.getPosition().lng(),
+				scale : document.getElementById("scale_select").options[document
+						.getElementById("scale_select").selectedIndex].value,
+				content : value
+			});
+		}
 	}
 </script>
 </head>
 <body onload="initialize()">
 	<div id="search_div" style="width: 100%; height: auto">
-		<table border="0" style="width:100%">
-			<tr style="width:100%">
+		<table border="0" style="width: 100%">
+			<tr style="width: 100%">
 				<td>
 					<div id="content_div"
 						style="width: 50%; margin-left: auto; margin-right: 0">
 						<input id="search_content" type="text"
-							style="height: auto; width: 100%" />
+							style="height: auto; width: 100%"
+							onkeyup="handleSearchContentChange(this.value)" />
 					</div>
 				</td>
 				<td>
 					<div id="scale_div" style="margin-left: 0; margin-right: auto">
-						<select>
+						<select id="scale_select">
 							<option value="100m">100m</option>
 							<option value="1000m">1000m</option>
 						</select>
